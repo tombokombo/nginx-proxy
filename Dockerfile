@@ -56,7 +56,9 @@ RUN apt-get update \
 
 
 # Configure Nginx
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf \
+RUN echo 'include /etc/nginx/stream.d/*.conf;' >> /etc/nginx/nginx.conf \
+   && mkdir -p '/etc/nginx/stream.d/' \
+   && echo "daemon off;" >> /etc/nginx/nginx.conf \
    && sed -i 's/worker_processes  1/worker_processes  auto/' /etc/nginx/nginx.conf \
    && sed -i 's/worker_connections  1024/worker_connections  10240/' /etc/nginx/nginx.conf \
    && mkdir -p '/etc/nginx/dhparam'
@@ -67,7 +69,7 @@ COPY --from=dockergen /usr/local/bin/docker-gen /usr/local/bin/docker-gen
 
 COPY network_internal.conf /etc/nginx/
 
-COPY app nginx.tmpl LICENSE /app/
+COPY app nginx.tmpl nginx.stream.tmpl LICENSE /app/
 WORKDIR /app/
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

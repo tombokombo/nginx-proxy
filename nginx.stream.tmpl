@@ -1,0 +1,20 @@
+stream {
+{{ range $port, $containers := groupByMulti $ "Env.TCP_PROXY_LISTEN_PORT" "," }}
+{{ $port := trim $port }}
+
+  upstream {{ printf "upstream_%s" $port }} {
+  {{ range $container := $containers }}
+    {{/* $container | mustToPrettyJson */}}
+    {{ $net := index $container.Networks 0 }}
+    {{ $containerPort :=  .Env.TCP_PROXY_CONTAINER_PORT | default $port }}
+    server {{ $net.IP }}:{{ $containerPort }};
+  {{ end }}
+  }
+
+  server {
+    listen {{ $port }};
+    proxy_pass {{ printf "upstream_%s" $port }};
+  }
+
+{{ end }}
+}
