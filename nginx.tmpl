@@ -67,6 +67,8 @@
 	{{ else if eq .Proto "grpc" }}
 		grpc_pass {{ trim .Proto }}://{{ trim .Upstream }};
 	{{ else }}
+                proxy_read_timeout 3000s;
+		client_max_body_size 10000m;
 		proxy_pass {{ trim .Proto }}://{{ trim .Upstream }}{{ trim .Dest }};
 	{{ end }}
 
